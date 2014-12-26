@@ -23,6 +23,7 @@ namespace Simon.Classes
             this.leds = new OutputPort[Configuration.Leds.Length];
             this.buttons = new InterruptPort[Configuration.Buttons.Length];
             this.piezos = new Piezos(Configuration.Piezos);
+            this.buttonStates = new bool[Configuration.Buttons.Length];
 
             for (int n = 0; n < Configuration.Leds.Length; n++)
             {
