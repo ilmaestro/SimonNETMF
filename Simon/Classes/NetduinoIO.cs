@@ -16,7 +16,8 @@ namespace Simon.Classes
         private Piezos piezos;
 
         public delegate void buttonHandler(string color);
-        public event buttonHandler onButtonPushed;
+        public event buttonHandler onButtonDown;
+        public event buttonHandler onButtonUp;
 
         public NetduinoIO()
         {
@@ -43,19 +44,23 @@ namespace Simon.Classes
         protected void buttons_OnButtonPushed(uint Pin, uint State, DateTime Time)
         {
             int bi = buttonIndex((Cpu.Pin)Pin);
+            string color = Configuration.Colors[bi];
             //make sure each button only hits when pushing down
             if (!this.buttonStates[bi])
             {
-                string color = Configuration.Colors[bi];
-                if (onButtonPushed != null)
+                if (onButtonUp != null)
                 {
-                    onButtonPushed(color);
+                    onButtonUp(color);
                 }
                 this.buttonStates[bi] = true;
             }
             else
             {
                 //button is now up..
+                if (onButtonDown != null)
+                {
+                    onButtonDown(color);
+                }
                 this.buttonStates[bi] = false;
             }
             Thread.Sleep(Configuration.BtnBounceTime);
@@ -109,6 +114,24 @@ namespace Simon.Classes
             return (OutputPort)this.leds[colorIndex(color)];
         }
 
+        public void StartBleep(string color)
+        {
+            Debug.Print("Bleeping " + color);
+            OutputPort led = getLed(color);
+            //turn on light, bleep piezo, turn off light
+            led.Write(true);
+            this.piezos.StartTone(0, Configuration.Sounds[colorIndex(color)]);
+        }
+
+        public void StopBleep(string color)
+        {
+            Debug.Print("Stopping " + color);
+            OutputPort led = getLed(color);
+            //turn on light, bleep piezo, turn off light
+            led.Write(false);
+            this.piezos.StopTone(0);
+        }
+
         public void Bleep(string color, int bleepTime)
         {
             Debug.Print("Bleeping " + color);
@@ -116,7 +139,7 @@ namespace Simon.Classes
             //turn on light, bleep piezo, turn off light
             led.Write(true);
             this.piezos.tone(0, Configuration.Sounds[colorIndex(color)], bleepTime);
-            led.Write(false);
+            //led.Write(false);
         }
     }
 }

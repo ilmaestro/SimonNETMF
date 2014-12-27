@@ -13,7 +13,8 @@ namespace Simon
         public Controller(GameState gamestate, NetduinoIO netduino) {
 	        this.gamestate = gamestate;
 	        this.netduino = netduino;
-            this.netduino.onButtonPushed += netduino_onButtonPushed;
+            this.netduino.onButtonDown += netduino_onButtonDown;
+            this.netduino.onButtonUp += netduino_onButtonUp;
         }
         
         public void startGame(){
@@ -69,16 +70,24 @@ namespace Simon
 		    }
 	    }
 
-        private void netduino_onButtonPushed(string color)
+        private void netduino_onButtonDown(string color)
         {
             if (this.gamestate.currentState == GameState.GameStates.Player)
             {
                 Debug.Print("Player move: " + color);
-                this.netduino.Bleep(color, this.gamestate.getPlayerTime);
-                this.gamestate.playerMove(color);
+                //this.netduino.Bleep(color, this.gamestate.getPlayerTime);
+                this.netduino.StartBleep(color);
             }
         }
 
+        private void netduino_onButtonUp(string color)
+        {
+            if (this.gamestate.currentState == GameState.GameStates.Player)
+            {
+                this.netduino.StopBleep(color);
+                this.gamestate.playerMove(color);
+            }
+        }
 	    private void gameOver(){
 		    Debug.Print("Score: " + this.gamestate.getScore);
 	    }

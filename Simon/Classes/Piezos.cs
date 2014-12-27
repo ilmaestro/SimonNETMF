@@ -31,5 +31,19 @@ namespace Simon.Classes
             // turn the speaker off
             pin.SetDutyCycle(0);
         }
+
+        public void StartTone(int piezo, float frequency)
+        {
+            PWM pin = this.piezos[piezo];
+            // calculate the actual period and turn the
+            // speaker on for the defined period of time
+            uint period = (uint)(1000000 / frequency);
+            pin.SetPulse(period, period / 2);
+        }
+        public void StopTone(int piezo)
+        {
+            PWM pin = this.piezos[piezo];
+            pin.SetDutyCycle(0);
+        }
     }
 }
